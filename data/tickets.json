@@ -1,0 +1,13 @@
+[
+  {
+    "id": "TKT-001",
+    "customer_id": "CUST-001",
+    "subject": "Duplicate charge on account + can't log in",
+    "channel": "email",
+    "created_at": "2026-04-08T09:15:00Z",
+    "status": "open",
+    "priority": null,
+    "assigned_to": null,
+    "body": "Hi support,\n\nI've been charged twice for my subscription this month. I can see two identical charges of $2,000 on April 1st on my credit card. On top of that, my account appears to be locked — I cannot log in and my whole team is affected.\n\nThis is extremely urgent. Our contract renews in 3 days and we cannot afford any downtime. Please help immediately.\n\nMarcus Wei\nGlobal Tech Solutions"
+  }
+]

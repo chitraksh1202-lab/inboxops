@@ -1,0 +1,14 @@
+# InboxOps — dependency manifest
+#
+# Core benchmark: zero dependencies — Python 3.10+ stdlib only.
+# No pip install needed to run scripts/run_baseline.py.
+#
+# Optional extras:
+
+# LLM agent harness (scripts/run_llm_agent.py)
+# pip install openai
+openai>=1.0.0
+
+# Gradio demo (app/space_app.py)
+# pip install gradio
+gradio>=4.0.0

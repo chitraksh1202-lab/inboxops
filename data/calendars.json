@@ -1,0 +1,86 @@
+{
+  "scenario": {
+    "title": "Q2 Kickoff – Cross-functional sync",
+    "required_attendees": ["Alice Chen", "Bob Martinez", "Carol Singh"],
+    "duration_minutes": 60,
+    "date_range": {
+      "start": "2026-04-09",
+      "end": "2026-04-11"
+    },
+    "preferences": ["avoid_lunch", "prefer_morning"],
+    "notes": "Prefer slots before noon. Avoid the 12:00–13:00 lunch window. Earlier in the week is better."
+  },
+  "participants": [
+    {
+      "name": "Alice Chen",
+      "role": "VP of Product",
+      "timezone": "America/New_York",
+      "working_hours": { "start": "09:00", "end": "17:00" },
+      "busy_slots": {
+        "2026-04-09": [
+          { "start": "09:00", "end": "10:30", "reason": "Engineering standup + 1:1s" },
+          { "start": "12:00", "end": "14:00", "reason": "Leadership lunch + debrief" }
+        ],
+        "2026-04-10": [
+          { "start": "11:00", "end": "14:00", "reason": "Roadmap planning workshop" }
+        ],
+        "2026-04-11": [
+          { "start": "09:00", "end": "11:00", "reason": "Board prep call" },
+          { "start": "14:00", "end": "15:30", "reason": "Investor update" }
+        ]
+      }
+    },
+    {
+      "name": "Bob Martinez",
+      "role": "Head of Sales",
+      "timezone": "America/New_York",
+      "working_hours": { "start": "09:00", "end": "17:00" },
+      "busy_slots": {
+        "2026-04-09": [
+          { "start": "09:30", "end": "12:00", "reason": "East coast client calls" },
+          { "start": "13:00", "end": "15:30", "reason": "Pipeline review + demos" }
+        ],
+        "2026-04-10": [
+          { "start": "10:30", "end": "13:00", "reason": "Sales team sync + deal reviews" }
+        ],
+        "2026-04-11": [
+          { "start": "10:00", "end": "12:00", "reason": "Prospect demo (Zenix Corp)" },
+          { "start": "13:30", "end": "14:30", "reason": "Internal pipeline call" }
+        ]
+      }
+    },
+    {
+      "name": "Carol Singh",
+      "role": "Engineering Lead",
+      "timezone": "America/New_York",
+      "working_hours": { "start": "09:00", "end": "17:00" },
+      "busy_slots": {
+        "2026-04-09": [
+          { "start": "10:00", "end": "13:00", "reason": "Sprint planning + retro" },
+          { "start": "14:30", "end": "16:00", "reason": "Architecture review" }
+        ],
+        "2026-04-10": [
+          { "start": "10:00", "end": "11:00", "reason": "Daily standup + code review" },
+          { "start": "14:00", "end": "16:00", "reason": "Infrastructure migration work" }
+        ],
+        "2026-04-11": [
+          { "start": "09:30", "end": "12:30", "reason": "Cross-team incident review" },
+          { "start": "15:00", "end": "17:00", "reason": "On-call handoff + docs" }
+        ]
+      }
+    }
+  ],
+  "_notes": {
+    "precomputed_valid_slots": [
+      "2026-04-09 16:00-17:00 (end of day, valid but not preferred)",
+      "2026-04-10 09:00-10:00 (BEST SLOT: morning, earliest, all preferences satisfied)",
+      "2026-04-10 16:00-17:00 (end of day, valid)",
+      "2026-04-11 12:30-13:30 (overlaps lunch window, least preferred)"
+    ],
+    "expected_best": {
+      "date": "2026-04-10",
+      "start": "09:00",
+      "end": "10:00"
+    }
+  }
+}

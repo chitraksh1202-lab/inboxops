@@ -1,0 +1,22 @@
+[
+  {
+    "id": "refund_policy",
+    "title": "Standard Refund Policy",
+    "content": "Refunds are available within 7 days of the original charge date. Requests outside the 7-day window require manager approval. EXCEPTION: Duplicate charges caused by a billing system error are eligible for immediate refund regardless of the charge date, and do not require manager approval. Duplicate charge refunds must reference both charge IDs."
+  },
+  {
+    "id": "billing_policy",
+    "title": "Billing Dispute Policy",
+    "content": "All billing disputes must be routed to the billing team via ticket assignment. For duplicate charges, both charge IDs must be included in the internal note. The billing team has authority to issue refunds up to $5,000 without additional manager approval. Enterprise duplicate charges are processed within 1 business day as priority."
+  },
+  {
+    "id": "escalation_policy",
+    "title": "VIP & Enterprise Escalation Policy",
+    "content": "Enterprise-tier and VIP customers must be escalated to their named account manager within 2 hours of ticket creation. The account manager is responsible for coordinating resolution across teams and maintaining customer communication. Failure to escalate VIP tickets within the SLA window is a policy violation. Do not make commitments to the customer before the account manager is looped in."
+  },
+  {
+    "id": "security_policy",
+    "title": "Account Lockout & Access Policy",
+    "content": "Accounts are locked automatically after 5 consecutive failed login attempts. Account unlocking requires: (1) identity verification via the customer's registered email or phone number, and (2) explicit approval from the security team. Support agents must NOT unlock accounts without security team sign-off. Do not promise immediate account restoration without security team involvement."
+  }
+]

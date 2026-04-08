@@ -1,0 +1,123 @@
+[
+  {
+    "id": "email_001",
+    "sender": "ap@northstarlogistics.com",
+    "subject": "Invoice #INV-4821 – Payment Overdue (15 days)",
+    "body": "Dear Finance Team,\n\nThis is a reminder that Invoice #INV-4821 for $2,340.00 issued on March 24, 2026 is now 15 days past due. Please arrange payment immediately or contact us to discuss a payment plan. Late fees will apply after 30 days.\n\nBest regards,\nAccounts Payable\nNorth Star Logistics",
+    "expected_label": "billing",
+    "expected_priority": "high",
+    "expected_owner": "finance"
+  },
+  {
+    "id": "email_002",
+    "sender": "noreply@securelogin-verification.net",
+    "subject": "⚠️ Your account has been compromised – verify immediately",
+    "body": "URGENT: We detected suspicious login activity on your account. Click the link below immediately to verify your identity and prevent permanent account suspension:\n\nhttps://securelogin-verification.net/verify?token=abc123xYZ\n\nFailure to act within 24 hours will result in account closure. This is your only warning.",
+    "expected_label": "spam",
+    "expected_priority": "low",
+    "expected_owner": "security"
+  },
+  {
+    "id": "email_003",
+    "sender": "priya.nair@company.internal",
+    "subject": "Q2 All-Hands – scheduling poll",
+    "body": "Hi team,\n\nI'm trying to schedule our Q2 all-hands for next week. Could everyone reply with their availability for Tuesday and Wednesday afternoon? We'll need about 2 hours. Please respond by Thursday EOD so I can send a calendar invite.\n\nThanks,\nPriya",
+    "expected_label": "meeting",
+    "expected_priority": "medium",
+    "expected_owner": "exec"
+  },
+  {
+    "id": "email_004",
+    "sender": "jordan.lee@clientco.com",
+    "subject": "Re: Ticket #8823 – Export still broken, blocking month-end",
+    "body": "Hello,\n\nFollowing up on ticket #8823 from two days ago. The export button in the analytics dashboard still produces a blank PDF. This is completely blocking our month-end reporting cycle — our CFO is waiting on these numbers.\n\nWe have tried Chrome, Firefox, and Edge. Nothing works. Please escalate immediately.\n\nRegards,\nJordan Lee\nData Analyst, ClientCo",
+    "expected_label": "support",
+    "expected_priority": "high",
+    "expected_owner": "support"
+  },
+  {
+    "id": "email_005",
+    "sender": "taylor.okonkwo@zenixcorp.com",
+    "subject": "Enterprise pricing inquiry – 200-seat team",
+    "body": "Hi,\n\nI'm the Head of Operations at Zenix Corp. We're evaluating productivity tools for our operations team (approximately 200 users) and your product came up as a top candidate.\n\nCould we schedule a demo and discuss enterprise pricing, volume discounts, and SSO/SAML support? We're aiming to make a decision by end of Q2.\n\nBest,\nTaylor Okonkwo\nHead of Operations, Zenix Corp",
+    "expected_label": "sales",
+    "expected_priority": "high",
+    "expected_owner": "sales"
+  },
+  {
+    "id": "email_006",
+    "sender": "no-reply@lottery-international.com",
+    "subject": "Congratulations! You have won $1,500,000 – claim your prize",
+    "body": "Dear Lucky Winner,\n\nYou have been randomly selected to receive USD $1,500,000 from the International Digital Lottery Foundation. To claim your prize, send your full name, address, bank account details, and a small processing fee of $150 to claim@lottery-international.com.\n\nThis offer expires in 48 hours. Do not miss this once-in-a-lifetime opportunity!",
+    "expected_label": "spam",
+    "expected_priority": "low",
+    "expected_owner": "security"
+  },
+  {
+    "id": "email_007",
+    "sender": "omar.hassan@company.internal",
+    "subject": "Office supplies reorder – Q2 budget approval needed",
+    "body": "Hi,\n\nWe're running low on several office essentials: copy paper, toner cartridges, and coffee pods. Attached is the Q2 supply list totaling $320. Please approve so I can place the order before Friday — we'll run out of paper by next week.\n\nThanks,\nOmar",
+    "expected_label": "internal",
+    "expected_priority": "low",
+    "expected_owner": "hr"
+  },
+  {
+    "id": "email_008",
+    "sender": "billing@stripe-invoices.com",
+    "subject": "Subscription renewal notice – Team Pro plan renewing April 15",
+    "body": "Hi there,\n\nYour Team Pro subscription renews on April 15, 2026. Your card on file ending in 4242 will be charged $599/month. If you'd like to upgrade to annual billing (save 20%), switch plans, or update payment details, please do so before the renewal date.\n\nThank you,\nStripe Billing",
+    "expected_label": "billing",
+    "expected_priority": "medium",
+    "expected_owner": "finance"
+  },
+  {
+    "id": "email_009",
+    "sender": "luna.schmidt@company.internal",
+    "subject": "Scheduled DB maintenance this Saturday 2–6am UTC – brief downtime expected",
+    "body": "Team,\n\nOps will be performing scheduled maintenance on the primary database server this Saturday, April 12, from 2:00am–6:00am UTC. Expect brief service interruptions during that window. No user-facing action is required from your side.\n\nI will send an all-clear message once maintenance is complete.\n\n– Luna, Infrastructure",
+    "expected_label": "internal",
+    "expected_priority": "medium",
+    "expected_owner": "support",
+    "_routing_note": "Ops/infrastructure internal emails route to support, not hr. The sender is @company.internal and the content is about server maintenance."
+  },
+  {
+    "id": "email_010",
+    "sender": "pa@globalhealth-consortium.org",
+    "subject": "Board meeting rescheduled – confirmed for April 17 at 2pm EST",
+    "body": "Hi,\n\nThis is to confirm that the board meeting originally scheduled for April 10 has been moved to April 17, 2026 at 2:00 PM EST due to a scheduling conflict. Please update your calendar accordingly. Secure dial-in details and the updated agenda will follow by Friday.\n\nKind regards,\nExecutive Office\nGlobal Health Consortium",
+    "expected_label": "meeting",
+    "expected_priority": "high",
+    "expected_owner": "exec"
+  },
+  {
+    "id": "email_011",
+    "sender": "no-reply@stripe-payment-security.net",
+    "subject": "ACTION REQUIRED: Your payment method has been declined",
+    "body": "Your recent payment of $599.00 has FAILED. Your account will be suspended within 24 hours unless you update your billing information immediately.\n\nPlease update your payment method at the link below to avoid service interruption:\nhttps://stripe-payment-security.net/update?acct=4242&token=xZ9mK\n\nIf you have already updated your information, please disregard this message. Contact us at billing-support@stripe-payment-security.net for assistance.",
+    "expected_label": "spam",
+    "expected_priority": "low",
+    "expected_owner": "security",
+    "_routing_note": "Phishing email disguised as a Stripe payment failure notice. The sender domain 'stripe-payment-security.net' is not the real stripe.com. Body mentions 'payment', 'billing', '$599' which score higher than the single spam signal ('account will be suspended'), so a naive keyword classifier labels it billing. Only a domain-aware or reasoning agent catches it."
+  },
+  {
+    "id": "email_012",
+    "sender": "security@company.internal",
+    "subject": "ALERT: Suspicious external login attempt on company SSO – action required",
+    "body": "Team,\n\nOur monitoring system flagged an unusual login attempt on the company SSO portal from an unrecognized IP address (185.220.101.42) at 3:47am UTC today. The attempt was blocked by MFA, but we're treating this as a potential credential stuffing attack.\n\nAction required: All staff should review their active sessions and change passwords if anything looks unfamiliar. Do not click any unexpected login verification emails.\n\nSecurity team is actively investigating. More details to follow.\n\n– Security, company.internal",
+    "expected_label": "internal",
+    "expected_priority": "high",
+    "expected_owner": "security",
+    "_routing_note": "Internal security alert from @company.internal. 'Suspicious' and 'login' might trigger spam heuristics, but the sender is trusted internal. Internal security emails route to security team, not hr."
+  },
+  {
+    "id": "email_013",
+    "sender": "wei.zhang@clientco.com",
+    "subject": "Bulk export timing out + question about API access pricing",
+    "body": "Hi support,\n\nWe have an unresolved bug with bulk data export — CSV exports consistently time out for datasets over 50,000 rows. I submitted a ticket about this last week but haven't heard back.\n\nSeparately (not urgent): could you forward me the pricing for API access? If this export bug can't be fixed quickly, we may want to build our own integration via the API as a workaround.\n\nThe bug is the main issue here — it's blocking our daily reporting pipeline.\n\nThanks,\nWei Zhang, ClientCo",
+    "expected_label": "support",
+    "expected_priority": "high",
+    "expected_owner": "support",
+    "_routing_note": "Mixed-signal email: mentions pricing (sales signal) but the primary issue is a bug report that is 'blocking our daily reporting pipeline'. Support intent dominates; priority is high because the export outage is actively blocking production work."
+  }
+]

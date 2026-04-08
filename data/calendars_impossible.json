@@ -1,0 +1,82 @@
+{
+  "scenario": {
+    "title": "Q2 Emergency Sync – No viable slot",
+    "required_attendees": ["Alice Chen", "Bob Martinez", "Carol Singh"],
+    "duration_minutes": 60,
+    "date_range": {
+      "start": "2026-04-09",
+      "end": "2026-04-11"
+    },
+    "preferences": ["avoid_lunch", "prefer_morning"],
+    "notes": "Same attendees and preferences as the standard scenario, but calendars this week leave no 60-minute window where all three are simultaneously free."
+  },
+  "participants": [
+    {
+      "name": "Alice Chen",
+      "role": "VP of Product",
+      "timezone": "America/New_York",
+      "working_hours": { "start": "09:00", "end": "17:00" },
+      "busy_slots": {
+        "2026-04-09": [
+          { "start": "09:00", "end": "13:30", "reason": "On-site customer workshop (all morning)" },
+          { "start": "14:30", "end": "17:00", "reason": "Executive debrief + board prep" }
+        ],
+        "2026-04-10": [
+          { "start": "09:00", "end": "12:00", "reason": "QBR prep + finance review" },
+          { "start": "14:30", "end": "17:00", "reason": "Investor call" }
+        ],
+        "2026-04-11": [
+          { "start": "10:30", "end": "15:30", "reason": "All-day offsite planning session" }
+        ]
+      }
+    },
+    {
+      "name": "Bob Martinez",
+      "role": "Head of Sales",
+      "timezone": "America/New_York",
+      "working_hours": { "start": "09:00", "end": "17:00" },
+      "busy_slots": {
+        "2026-04-09": [
+          { "start": "09:00", "end": "13:00", "reason": "East coast enterprise deals" },
+          { "start": "14:00", "end": "17:00", "reason": "West coast pipeline calls" }
+        ],
+        "2026-04-10": [
+          { "start": "10:30", "end": "15:00", "reason": "Multi-city sales roadshow (remote)" }
+        ],
+        "2026-04-11": [
+          { "start": "09:00", "end": "11:30", "reason": "Key account negotiation" },
+          { "start": "14:00", "end": "17:00", "reason": "Contract review + legal" }
+        ]
+      }
+    },
+    {
+      "name": "Carol Singh",
+      "role": "Engineering Lead",
+      "timezone": "America/New_York",
+      "working_hours": { "start": "09:00", "end": "17:00" },
+      "busy_slots": {
+        "2026-04-09": [
+          { "start": "09:30", "end": "14:00", "reason": "Production incident response" },
+          { "start": "15:00", "end": "17:00", "reason": "Incident post-mortem" }
+        ],
+        "2026-04-10": [
+          { "start": "09:00", "end": "10:30", "reason": "On-call handoff + standup" },
+          { "start": "13:00", "end": "17:00", "reason": "Database migration execution" }
+        ],
+        "2026-04-11": [
+          { "start": "09:00", "end": "10:30", "reason": "Code review marathon" },
+          { "start": "11:00", "end": "17:00", "reason": "Release preparation + deployment" }
+        ]
+      }
+    }
+  ],
+  "_notes": {
+    "intent": "No-solution scenario. No 60-minute slot exists where Alice, Bob, and Carol are all free simultaneously on any of the three days. The agent must call find_slots (observe empty result), then call report_no_solution rather than attempting to book.",
+    "verification": {
+      "2026-04-09": "Alice free 13:30-14:30 (60 min). Bob free 13:00-14:00 (60 min). Carol free 09:00-09:30 and 14:00-15:00. Alice+Bob overlap: 13:30-14:00 = 30 min. No 60-min triple overlap.",
+      "2026-04-10": "Alice free 12:00-14:30. Bob free 09:00-10:30 and 15:00-17:00. Carol free 10:30-13:00. Alice+Bob: no overlap (Alice starts 12, Bob free ends 10:30, Bob next free starts 15). No 60-min triple overlap.",
+      "2026-04-11": "Alice free 09:00-10:30 and 15:30-17:00. Bob free 11:30-14:00. Carol free 10:30-11:00 only (30 min). Alice+Bob: no overlap. No 60-min triple overlap."
+    },
+    "expected_outcome": "Agent calls find_slots → receives empty list → calls report_no_solution"
+  }
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "CUST-001",
+    "name": "Marcus Wei",
+    "company": "Global Tech Solutions",
+    "email": "mwei@globaltech.io",
+    "phone": "+1-415-555-0192",
+    "tier": "enterprise",
+    "is_vip": true,
+    "account_since": "2020-01-15",
+    "subscription_plan": "Enterprise Annual",
+    "subscription_value_usd": 24000,
+    "renewal_date": "2026-04-11",
+    "account_manager": "Sarah Okafor",
+    "billing_history": [
+      {
+        "date": "2026-04-01",
+        "amount": 2000.00,
+        "description": "Enterprise Annual – Q2 installment",
+        "charge_id": "ch_001",
+        "status": "settled"
+      },
+      {
+        "date": "2026-04-01",
+        "amount": 2000.00,
+        "description": "Enterprise Annual – Q2 installment",
+        "charge_id": "ch_002",
+        "status": "settled",
+        "_note": "DUPLICATE of ch_001 — billing system error"
+      },
+      {
+        "date": "2026-01-01",
+        "amount": 2000.00,
+        "description": "Enterprise Annual – Q1 installment",
+        "charge_id": "ch_000",
+        "status": "settled"
+      }
+    ],
+    "auth_log": [
+      { "timestamp": "2026-04-08T08:00:12Z", "event": "failed_login", "ip": "203.0.113.42", "reason": "incorrect_password" },
+      { "timestamp": "2026-04-08T08:01:05Z", "event": "failed_login", "ip": "203.0.113.42", "reason": "incorrect_password" },
+      { "timestamp": "2026-04-08T08:01:58Z", "event": "failed_login", "ip": "203.0.113.42", "reason": "incorrect_password" },
+      { "timestamp": "2026-04-08T08:02:44Z", "event": "failed_login", "ip": "203.0.113.42", "reason": "incorrect_password" },
+      { "timestamp": "2026-04-08T08:03:31Z", "event": "failed_login", "ip": "203.0.113.42", "reason": "incorrect_password" },
+      { "timestamp": "2026-04-08T08:03:32Z", "event": "account_locked", "ip": "203.0.113.42", "reason": "max_failed_attempts_exceeded" }
+    ],
+    "open_tickets": ["TKT-001"],
+    "notes": "Long-term customer since 2020. High strategic value. Renewal at risk if unresolved."
+  }
+]
