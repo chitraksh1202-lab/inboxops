@@ -7,11 +7,17 @@ name = "inboxops"
 version = "1.0.0"
 description = "A deterministic workplace agent benchmark for evaluating AI agents on office inbox tasks"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "openenv-core>=0.2.0",
+    "gradio==5.25.0",
+    "requests",
+    "uvicorn",
+    "fastapi",
+]
 
-[project.optional-dependencies]
-demo = ["gradio==5.25.0", "requests", "uvicorn"]
+[project.scripts]
+inboxops-server = "server.app:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["env*"]
+include = ["env*", "server*"]
