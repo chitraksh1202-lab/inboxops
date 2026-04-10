@@ -7,6 +7,7 @@ Run locally:  python app.py
 import json
 import os
 import sys
+import uuid
 
 # Make the repo root importable so `from env import InboxOpsEnv` works
 _root = os.path.dirname(os.path.abspath(__file__))
@@ -18,6 +19,7 @@ if _cwd not in sys.path:
     sys.path.insert(0, _cwd)
 
 import gradio as gr
+from fastapi import FastAPI, Request, HTTPException
 from env import InboxOpsEnv
 
 
@@ -309,5 +311,51 @@ def build_app():
 
 demo = build_app()
 
+# ─── REST API (for hackathon portal checks) ───────────────────────────────────
+
+_sessions: dict = {}  # session_id -> InboxOpsEnv
+
+_api = FastAPI()
+
+
+@_api.get("/health")
+def health():
+    return {"status": "ok"}
+
+
+@_api.post("/reset")
+async def api_reset(request: Request):
+    body = await request.json()
+    task = body.get("task", "email_triage")
+    env = InboxOpsEnv()
+    state = env.reset(task)
+    session_id = str(uuid.uuid4())
+    _sessions[session_id] = env
+    return {"session_id": session_id, "state": state}
+
+
+@_api.post("/step")
+async def api_step(request: Request):
+    body = await request.json()
+    session_id = body.get("session_id")
+    action = body.get("action")
+    env = _sessions.get(session_id)
+    if env is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+    state, reward, done, info = env.step(action)
+    return {"state": state, "reward": reward, "done": done, "info": info}
+
+
+@_api.get("/grade")
+async def api_grade(session_id: str):
+    env = _sessions.get(session_id)
+    if env is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return {"score": env.grade(), "summary": env.summary()}
+
+
+app = gr.mount_gradio_app(_api, demo, path="/")
+
 if __name__ == "__main__":
-    demo.launch()
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=7860)
