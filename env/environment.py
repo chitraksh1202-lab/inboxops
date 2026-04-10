@@ -13,10 +13,10 @@ The environment is a thin wrapper that delegates to the task object.
 It tracks cumulative reward and exposes a grade() method.
 """
 
-from env.tasks.email_easy        import EmailTriageTask
-from env.tasks.scheduling_medium import MeetingSchedulingTask, SchedulingImpossibleTask
-from env.tasks.support_hard      import SupportEscalationTask
-from env.graders                 import grade
+from .tasks.email_easy        import EmailTriageTask
+from .tasks.scheduling_medium import MeetingSchedulingTask, SchedulingImpossibleTask
+from .tasks.support_hard      import SupportEscalationTask
+from .graders                 import grade
 
 TASK_REGISTRY = {
     "email_triage":          EmailTriageTask,

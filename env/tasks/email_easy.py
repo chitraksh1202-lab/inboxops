@@ -17,7 +17,7 @@ Reward shaping is applied per action (see rewards.py).
 
 import json
 from pathlib import Path
-from env.rewards import EMAIL as R
+from ..rewards import EMAIL as R
 
 DATA_PATH = Path(__file__).parent.parent.parent / "data" / "emails.json"
 

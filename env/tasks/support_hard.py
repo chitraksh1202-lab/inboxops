@@ -28,7 +28,7 @@ Grading: checklist-based score (see graders.py).
 
 import json
 from pathlib import Path
-from env.rewards import SUPPORT as R
+from ..rewards import SUPPORT as R
 
 DATA_DIR = Path(__file__).parent.parent.parent / "data"
 

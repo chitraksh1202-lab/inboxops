@@ -29,7 +29,7 @@ variant scores on whether the agent correctly acknowledged no solution exists.
 import json
 from datetime import date, timedelta
 from pathlib import Path
-from env.rewards import SCHEDULING as R
+from ..rewards import SCHEDULING as R
 
 _DATA_DIR = Path(__file__).parent.parent.parent / "data"
 
