@@ -2,11 +2,13 @@
 inference.py - AI agent entry point for InboxOps benchmark.
 
 Prints [START] / [STEP] / [END] structured output blocks to stdout.
-Replace the heuristic logic with your own LLM-based agent.
+Uses the hackathon LiteLLM proxy when API_BASE_URL and API_KEY are set,
+falling back to a deterministic heuristic for local testing.
 """
 
 import os
 import sys
+import json
 
 _root = os.path.dirname(os.path.abspath(__file__))
 if _root not in sys.path:
@@ -21,6 +23,80 @@ TASK_KEYS = [
     "support_escalation",
 ]
 
+# ── LLM client setup ──────────────────────────────────────────────────────────
+
+def _make_client():
+    """Return an OpenAI client pointed at the hackathon proxy, or None."""
+    base_url = os.environ.get("API_BASE_URL")
+    api_key  = os.environ.get("API_KEY", "no-key")
+    if not base_url:
+        return None
+    try:
+        from openai import OpenAI
+        return OpenAI(base_url=base_url, api_key=api_key)
+    except Exception:
+        return None
+
+_CLIENT = _make_client()
+_MODEL  = os.environ.get("MODEL_NAME", "gpt-4o-mini")
+
+_SYSTEM_PROMPT = """\
+You are an expert AI agent solving office inbox tasks deterministically.
+Given the current task state and the last action info, output the SINGLE best next action as valid JSON.
+Return null (the JSON literal) if no further action is needed.
+
+Rules:
+- Output ONLY a JSON object or null — no explanation, no markdown, no code block.
+- Action keys must match exactly: "action", and required params for that action type.
+- Valid action examples:
+  {{"action": "open_email", "email_id": "email_001"}}
+  {{"action": "label_email", "email_id": "email_001", "label": "billing"}}
+  {{"action": "set_priority", "email_id": "email_001", "priority": "high"}}
+  {{"action": "assign_owner", "email_id": "email_001", "owner": "finance"}}
+  {{"action": "archive_email", "email_id": "email_001"}}
+  {{"action": "view_calendar", "participant": "Alice Chen"}}
+  {{"action": "find_slots"}}
+  {{"action": "propose_meeting", "date": "2026-04-10", "start": "09:00", "end": "10:00"}}
+  {{"action": "book_meeting", "date": "2026-04-10", "start": "09:00", "end": "10:00"}}
+  {{"action": "report_no_solution", "reason": "No slot exists."}}
+  {{"action": "open_ticket", "ticket_id": "TKT-001"}}
+  {{"action": "view_customer", "customer_id": "CUST-001"}}
+  {{"action": "inspect_billing", "customer_id": "CUST-001"}}
+  {{"action": "check_auth_status", "customer_id": "CUST-001"}}
+  {{"action": "search_policy", "policy_id": "refund_policy"}}
+  {{"action": "assign_ticket", "team": "billing"}}
+  {{"action": "add_internal_note", "note": "..."}}
+  {{"action": "draft_reply", "content": "..."}}
+  {{"action": "escalate", "reason": "..."}}
+"""
+
+
+def _llm_action(task_key: str, state: dict, info: dict):
+    """Call the LLM proxy for the next action. Returns action dict or None."""
+    if _CLIENT is None:
+        return None
+    user_msg = (
+        f"Task: {task_key}\n\n"
+        f"Current state:\n{json.dumps(state, indent=2, default=str)}\n\n"
+        f"Last step info:\n{json.dumps(info, indent=2, default=str)}"
+    )
+    try:
+        resp = _CLIENT.chat.completions.create(
+            model=_MODEL,
+            messages=[
+                {"role": "system", "content": _SYSTEM_PROMPT},
+                {"role": "user",   "content": user_msg},
+            ],
+            temperature=0,
+            max_tokens=256,
+        )
+        raw = resp.choices[0].message.content.strip()
+        if raw.lower() in ("null", "none", ""):
+            return None
+        return json.loads(raw)
+    except Exception:
+        return None
+
 
 def run_agent(task_key: str) -> dict:
     """Run the agent on a single task, printing structured output to stdout."""
@@ -33,7 +109,10 @@ def run_agent(task_key: str) -> dict:
     info = {}
     done = False
     while not done:
-        action = _next_action(task_key, state, info)
+        # Try LLM first; fall back to deterministic heuristic
+        action = _llm_action(task_key, state, info)
+        if action is None:
+            action = _next_action(task_key, state, info)
         if action is None:
             break
         state, reward, done, info = env.step(action)

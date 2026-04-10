@@ -377,7 +377,13 @@ async def api_grade(session_id: str):
     return {"score": env.grade(), "summary": env.summary()}
 
 
-app = gr.mount_gradio_app(_api, demo, path="/")
+from fastapi.responses import RedirectResponse
+
+@_api.get("/")
+def root_redirect():
+    return RedirectResponse(url="/ui")
+
+app = gr.mount_gradio_app(_api, demo, path="/ui")
 
 if __name__ == "__main__":
     import uvicorn
