@@ -17,6 +17,7 @@ dependencies = [
 
 [project.scripts]
 inboxops-server = "server.app:main"
+serve = "server.app:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
