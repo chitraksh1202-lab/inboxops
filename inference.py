@@ -120,7 +120,9 @@ def run_agent(task_key: str) -> dict:
         print(f"[STEP] step={step_num} reward={reward}", flush=True)
 
     summary = env.summary()
-    print(f"[END] task={task_key} score={summary['score']} steps={step_num}", flush=True)
+    # Validator requires score strictly between 0 and 1 (exclusive)
+    score = max(0.001, min(0.999, summary["score"]))
+    print(f"[END] task={task_key} score={score} steps={step_num}", flush=True)
     return summary
 
 
