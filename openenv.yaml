@@ -1,0 +1,61 @@
+name: InboxOps
+version: "1.0.0"
+description: >
+  A deterministic, hackathon-grade benchmark for evaluating AI agents
+  on realistic office inbox tasks. Four tasks, clean 0-1 scoring, pure Python.
+
+tasks:
+  - id: email_triage
+    difficulty: easy
+    description: Label, prioritise, and route 13 emails; archive phishing.
+
+  - id: meeting_scheduling
+    difficulty: medium
+    description: Find and book a valid 60-min slot across 3 busy calendars.
+
+  - id: scheduling_impossible
+    difficulty: medium
+    description: Recognise that no valid slot exists and report it.
+
+  - id: support_escalation
+    difficulty: hard
+    description: Investigate a VIP enterprise ticket with 4 sub-issues.
+
+api:
+  reset:
+    method: POST
+    path: /reset
+    body:
+      task: string
+    response:
+      session_id: string
+      state: object
+
+  step:
+    method: POST
+    path: /step
+    body:
+      session_id: string
+      action: object
+    response:
+      state: object
+      reward: number
+      done: boolean
+      info: object
+
+  grade:
+    method: GET
+    path: /grade
+    params:
+      session_id: string
+    response:
+      score: number
+      summary: object
+
+scoring:
+  type: deterministic
+  range: [0.0, 1.0]
+  pass_threshold: 0.7
+
+inference_entry: inference.py
+app_file: app.py
