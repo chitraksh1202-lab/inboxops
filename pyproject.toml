@@ -13,6 +13,7 @@ dependencies = [
     "requests",
     "uvicorn",
     "fastapi",
+    "openai>=1.0.0",
 ]
 
 [project.scripts]

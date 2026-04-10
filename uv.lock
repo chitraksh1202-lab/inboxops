@@ -817,6 +817,7 @@ source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
     { name = "gradio" },
+    { name = "openai" },
     { name = "openenv-core" },
     { name = "requests" },
     { name = "uvicorn" },
@@ -826,6 +827,7 @@ dependencies = [
 requires-dist = [
     { name = "fastapi" },
     { name = "gradio", specifier = "==5.25.0" },
+    { name = "openai", specifier = ">=1.0.0" },
     { name = "openenv-core", specifier = ">=0.2.0" },
     { name = "requests" },
     { name = "uvicorn" },
