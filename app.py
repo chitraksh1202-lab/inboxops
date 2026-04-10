@@ -323,26 +323,49 @@ def health():
     return {"status": "ok"}
 
 
-@_api.post("/reset")
-async def api_reset(request: Request):
-    body = await request.json()
-    task = body.get("task", "email_triage")
-    env = InboxOpsEnv()
-    state = env.reset(task)
+async def _do_reset(request: Request):
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    if not isinstance(body, dict):
+        body = {}
+    task = body.get("task") or body.get("task_id") or "email_triage"
+    try:
+        env = InboxOpsEnv()
+        state = env.reset(task)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     session_id = str(uuid.uuid4())
     _sessions[session_id] = env
     return {"session_id": session_id, "state": state}
 
 
+@_api.post("/reset")
+async def api_reset(request: Request):
+    return await _do_reset(request)
+
+
+@_api.post("/api/reset")
+async def api_reset_alt(request: Request):
+    return await _do_reset(request)
+
+
 @_api.post("/step")
 async def api_step(request: Request):
-    body = await request.json()
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
     session_id = body.get("session_id")
     action = body.get("action")
     env = _sessions.get(session_id)
     if env is None:
         raise HTTPException(status_code=404, detail="Session not found")
-    state, reward, done, info = env.step(action)
+    try:
+        state, reward, done, info = env.step(action)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     return {"state": state, "reward": reward, "done": done, "info": info}
 
 
