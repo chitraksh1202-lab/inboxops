@@ -198,37 +198,77 @@ html, body { background: #080b12 !important; }
     content: ''; flex: 1; height: 1px; background: #1a1f2e;
 }
 
-/* ── Score grid ── */
-.score-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    gap: 10px; margin-bottom: 10px;
+/* ── Score gauge cards ── */
+.sc-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px; margin-bottom: 10px;
 }
-.score-card {
-    background: #0d1018; border: 1px solid #1a1f2e;
-    border-radius: 14px; padding: 20px 14px; text-align: center;
+@media (min-width: 640px) { .sc-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.sc-card {
+    background: #0d1018;
+    border: 1px solid #1a1f2e;
+    border-radius: 18px;
+    padding: 18px 14px 14px;
+    text-align: center;
+    opacity: 0;
+    animation: sc-rise 0.55s ease forwards;
+    box-shadow:
+        0 0 8px rgba(0,0,0,.03),
+        0 2px 6px rgba(0,0,0,.08),
+        inset 1px 1px 1px -0.5px rgba(255,255,255,.06),
+        inset -1px -1px 1px -0.5px rgba(255,255,255,.06),
+        inset 0 0 6px 6px rgba(255,255,255,.03);
     transition: border-color .25s, transform .25s, box-shadow .25s;
-    cursor: default;
 }
-.score-card:hover {
+@keyframes sc-rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.sc-card:hover {
     border-color: #2d3555;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(129,140,248,.08);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 48px rgba(129,140,248,.1),
+        inset 1px 1px 1px -0.5px rgba(255,255,255,.08);
 }
-.score-card .task-icon { font-size: 1.5rem; margin-bottom: 8px; }
-.score-card .task-name {
-    font-size: 0.65rem; color: #334155; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;
+.sc-header {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 10px;
 }
-.score-card .diff-badge {
-    display: inline-block; border-radius: 999px; padding: 2px 10px;
-    font-size: 0.64rem; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.04em;
+.sc-icon { font-size: 1.25rem; }
+.sc-badge {
+    border-radius: 999px; padding: 3px 10px;
+    font-size: 0.62rem; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
 }
-.score-card .heur-score {
-    font-size: 1.9rem; font-weight: 800; color: #e2e8f0;
-    font-family: 'JetBrains Mono', monospace; line-height: 1;
+.sc-gauge-wrap { position: relative; }
+.sc-gauge { width: 100%; height: auto; display: block; overflow: visible; }
+.sc-track {
+    fill: none; stroke: #1a1f2e; stroke-width: 11; stroke-linecap: round;
 }
-.score-card .score-label { font-size: 0.62rem; color: #334155; margin-top: 3px; }
-.score-card .rand-score { font-size: 0.7rem; color: #1e2d3d; margin-top: 8px; }
+.sc-arc {
+    fill: none; stroke-width: 11; stroke-linecap: round;
+    stroke-dasharray: 0 283;
+    transition: stroke-dasharray 1.3s cubic-bezier(0.65,0,0.35,1);
+}
+.sc-score-center {
+    position: absolute; bottom: 6px; left: 0; right: 0;
+    text-align: center; pointer-events: none;
+}
+.sc-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.55rem; font-weight: 800; color: #e2e8f0; line-height: 1;
+}
+.sc-score-lbl {
+    font-size: 0.58rem; color: #334155;
+    text-transform: uppercase; letter-spacing: 0.08em; margin-top: 1px;
+}
+.sc-name {
+    font-size: 0.65rem; color: #475569; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.07em; margin-top: 10px;
+}
+.sc-rand { font-size: 0.62rem; color: #1e2a3a; margin-top: 3px; }
 
 /* ── Task accordions ── */
 .task-card {
@@ -274,22 +314,70 @@ footer { display: none !important; }
 # ─── HTML helpers ─────────────────────────────────────────────────────────────
 
 def _score_cards_html() -> str:
+    import math
+    # Arc: M10,95 A85,85 0 0,1 190,95  (semicircle, r=90, center 100,95)
+    # Arc length = π × 90 ≈ 282.74
+    R = 90
+    ARC_LEN = round(math.pi * R, 2)   # 282.74
+    CX, CY = 100, 97
+    x0, x1 = CX - R, CX + R          # 10, 190
+
+    # gradient color stops per strength
+    STOPS = {
+        "Easy":   ["hsl(142,71%,75%)", "hsl(142,71%,50%)", "hsl(142,55%,35%)"],
+        "Medium": ["hsl(38,92%,75%)",  "hsl(38,92%,55%)",  "hsl(38,75%,38%)"],
+        "Hard":   ["hsl(0,84%,75%)",   "hsl(0,84%,58%)",   "hsl(0,70%,40%)"],
+    }
+
     cards = []
-    for key in TASK_KEYS:
-        info = TASK_INFO[key]
-        h = info["heuristic_score"]
-        r = info["random_score"]
-        color = info["diff_color"]
+    for i, key in enumerate(TASK_KEYS):
+        info   = TASK_INFO[key]
+        score  = info["heuristic_score"]
+        rand   = info["random_score"]
+        color  = info["diff_color"]
+        diff   = info["difficulty"]
+        stops  = STOPS[diff]
+        gid    = f"scg{i}"
+
+        # how much of the arc to fill
+        fill = round(score * ARC_LEN, 2)
+
+        stops_html = "".join(
+            f'<stop offset="{int(100/(len(stops)-1)*j)}%" stop-color="{s}"/>'
+            for j, s in enumerate(stops)
+        )
+        badge_bg = color + "22"
+
         cards.append(f"""
-        <div class="score-card">
-          <div class="task-icon">{info['icon']}</div>
-          <div class="task-name">{info['display']}</div>
-          <div class="diff-badge" style="background:{color}22;color:{color};">{info['difficulty']}</div>
-          <div class="heur-score">{h:.4f}</div>
-          <div class="score-label">heuristic</div>
-          <div class="rand-score">random: {r:.4f}</div>
+        <div class="sc-card" style="animation-delay:{i*130}ms">
+          <div class="sc-header">
+            <span class="sc-icon">{info['icon']}</span>
+            <span class="sc-badge" style="background:{badge_bg};color:{color}">{diff}</span>
+          </div>
+          <div class="sc-gauge-wrap">
+            <svg class="sc-gauge" viewBox="0 0 200 108">
+              <defs>
+                <linearGradient id="{gid}" x1="0" y1="0" x2="1" y2="0">
+                  {stops_html}
+                </linearGradient>
+              </defs>
+              <path class="sc-track"
+                d="M{x0},{CY} A{R},{R} 0 0,1 {x1},{CY}"/>
+              <path class="sc-arc"
+                stroke="url(#{gid})"
+                d="M{x0},{CY} A{R},{R} 0 0,1 {x1},{CY}"
+                data-fill="{fill}" data-len="{ARC_LEN}"/>
+            </svg>
+            <div class="sc-score-center">
+              <div class="sc-score">{score:.4f}</div>
+              <div class="sc-score-lbl">heuristic</div>
+            </div>
+          </div>
+          <div class="sc-name">{info['display']}</div>
+          <div class="sc-rand">random baseline: {rand:.4f}</div>
         </div>""")
-    return f'<div class="score-grid">{"".join(cards)}</div>'
+
+    return f'<div class="sc-grid">{"".join(cards)}</div>'
 
 
 def _action_chips_html(actions):
@@ -329,9 +417,10 @@ def _get_initial_state(task_key: str) -> str:
 
 _CANVAS_JS = """
 () => {
+  /* ── dot-wave canvas ── */
   function startCanvas() {
     var c = document.getElementById('dot-canvas');
-    if (!c) { setTimeout(startCanvas, 200); return; }
+    if (!c) { setTimeout(startCanvas, 250); return; }
     var ctx = c.getContext('2d');
     var dots = [], t = 0;
     function resize() {
@@ -354,7 +443,22 @@ _CANVAS_JS = """
     }
     window.addEventListener('resize', resize); resize(); draw();
   }
+
+  /* ── gauge arc animation ── */
+  function animateArcs() {
+    var arcs = document.querySelectorAll('.sc-arc');
+    if (!arcs.length) { setTimeout(animateArcs, 300); return; }
+    arcs.forEach(function(arc, idx) {
+      var fill = parseFloat(arc.getAttribute('data-fill'));
+      var len  = parseFloat(arc.getAttribute('data-len'));
+      setTimeout(function() {
+        arc.style.strokeDasharray = fill + ' ' + len;
+      }, 300 + idx * 130);
+    });
+  }
+
   startCanvas();
+  animateArcs();
 }
 """
 
