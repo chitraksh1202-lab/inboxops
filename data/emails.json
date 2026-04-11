@@ -119,5 +119,55 @@
     "expected_priority": "high",
     "expected_owner": "support",
     "_routing_note": "Mixed-signal email: mentions pricing (sales signal) but the primary issue is a bug report that is 'blocking our daily reporting pipeline'. Support intent dominates; priority is high because the export outage is actively blocking production work."
+  },
+  {
+    "id": "email_014",
+    "sender": "noreply@docusign-esignature.net",
+    "subject": "Action required: Your NDA is awaiting signature – expires in 24 hours",
+    "body": "Hello,\n\nA document has been shared with you for review and signing via DocuSign.\n\nDocument: Mutual Non-Disclosure Agreement (MNDA-2026-Q2)\nSent by: legal@partnerco.com\nExpires: April 12, 2026\n\nPlease review and sign the document at your earliest convenience:\nhttps://docusign-esignature.net/sign?doc=MNDA-2026&token=x8Kp2mZ\n\nIf you have any questions about this document, please contact the sender directly.\n\nPowered by DocuSign\ndocusign-esignature.net",
+    "expected_label": "spam",
+    "expected_priority": "low",
+    "expected_owner": "security",
+    "_routing_note": "Phishing email impersonating DocuSign. The real domain is docusign.com — 'docusign-esignature.net' is a lookalike. The body contains no billing or classic spam keywords (no 'winner', 'lottery', 'bank account details'), using only document/signature/legal language that evades keyword classifiers. Only a domain-aware or reasoning agent catches it as phishing."
+  },
+  {
+    "id": "email_015",
+    "sender": "maya.patel@company.internal",
+    "subject": "🎉 We WON the Gartner Cool Vendor award – free team dinner this Friday!",
+    "body": "Hi everyone,\n\nExciting news — InboxOps has been named a Gartner Cool Vendor for 2026! 🎉\n\nTo celebrate, I'm treating the entire team to a free dinner this Friday at 7pm at The Ivy. Details and dietary preference form to follow by tomorrow.\n\nThis is a huge milestone and I couldn't be more proud of what we've built together. Bring your partner if you'd like.\n\nSee you Friday!\n\nMaya Patel\nCEO, InboxOps",
+    "expected_label": "internal",
+    "expected_priority": "low",
+    "expected_owner": "hr",
+    "_routing_note": "Legitimate internal email from the CEO (@company.internal). The subject contains 'WON' and 'free' — classic spam trigger words — but the sender is a trusted internal address and the content is a genuine team celebration. A keyword classifier mislabels it as spam/security; an LLM recognises the internal sender and context."
+  },
+  {
+    "id": "email_016",
+    "sender": "priya.raghavan@scaletech.io",
+    "subject": "API rate limit errors blocking our pipeline – looking at Enterprise tier",
+    "body": "Hi,\n\nWe've been hitting rate limit errors on your API constantly for the past two weeks. I opened a ticket (#9041) about it but haven't heard back.\n\nI understand we're on the Starter plan (1,000 requests/hour). Our production pipeline now requires roughly 8,000 requests/hour and the current limit is causing failures every day.\n\nHonestly, I think we've outgrown the Starter plan. I'd like to get pricing for the Enterprise tier — specifically for 50 seats with a higher API rate limit and SLA guarantees. Could someone from your sales or partnerships team reach out this week?\n\nPriya Raghavan\nHead of Data, ScaleTech",
+    "expected_label": "sales",
+    "expected_priority": "high",
+    "expected_owner": "sales",
+    "_routing_note": "The surface-level signals (rate limit errors, ticket, pipeline failures) look like a support request, and a keyword classifier routes it there. But the primary ask is explicit: 'I'd like to get pricing for the Enterprise tier... Could someone from your sales team reach out?' An LLM understands the intent is an upgrade/sales inquiry, not a bug report."
+  },
+  {
+    "id": "email_017",
+    "sender": "payroll@direct-deposit-update.com",
+    "subject": "Important: Your April salary payment details have been updated",
+    "body": "Dear Employee,\n\nWe have migrated to a new payroll processing system. To ensure your April salary payment is deposited to the correct account, please confirm your payment details at the secure link below:\n\nhttps://direct-deposit-update.com/confirm?emp=4829&token=zR7wX\n\nPlease action this by April 10 to avoid any delay to your monthly payment.\n\nHR & Payroll Administration",
+    "expected_label": "spam",
+    "expected_priority": "low",
+    "expected_owner": "security",
+    "_routing_note": "Payroll phishing from the fake domain 'direct-deposit-update.com'. The body uses 'payment' and 'salary payment' which score as billing keywords, so a keyword classifier labels it billing/finance. The fake domain (no legitimate company sends payroll from 'direct-deposit-update.com') and the credential-harvesting pattern are what identify it as phishing — requiring domain-aware reasoning."
+  },
+  {
+    "id": "email_018",
+    "sender": "noreply@github.com",
+    "subject": "New sign-in to your GitHub organisation from an unrecognised device",
+    "body": "Hi,\n\nWe noticed a new sign-in to your GitHub organisation 'inboxops-eng' from a device we don't recognise.\n\nDevice: Windows 11 · Chrome 124\nLocation: Frankfurt, Germany\nTime: April 11, 2026 at 06:14 UTC\n\nIf this was you, no action is needed. If you do not recognise this activity, we strongly recommend reviewing your organisation's member access and revoking any unfamiliar sessions at github.com/orgs/inboxops-eng/settings/security.\n\nFor help, visit GitHub Support.\n\nThe GitHub Team\ngithub.com",
+    "expected_label": "internal",
+    "expected_priority": "high",
+    "expected_owner": "security",
+    "_routing_note": "Legitimate security alert from the real github.com domain about potentially unauthorised access to the company's GitHub organisation — a high-priority internal security matter. A keyword classifier assigns the wrong owner (hr instead of security) and wrong priority (medium instead of high) because it relies on exact keyword matches like 'security team' or 'sso portal' which don't appear. An LLM understands this is an IT security event that must reach the security team immediately."
   }
 ]

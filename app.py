@@ -39,19 +39,20 @@ TASK_INFO = {
         "difficulty": "Easy",
         "diff_color": "#22c55e",
         "description": (
-            "The agent receives 13 emails in an inbox. For each email it must assign a "
+            "The agent receives 18 emails in an inbox. For each email it must assign a "
             "**label** (billing / support / meeting / sales / spam / internal), "
             "a **priority** (low / medium / high), and an **owner** (finance / support / exec / sales / security / hr). "
             "Spam and phishing emails must be archived.\n\n"
-            "The inbox contains intentional edge cases: a phishing email impersonating Stripe "
-            "that a keyword classifier will misclassify, an internal security alert that must "
-            "route to `security` (not `hr`), and a mixed support/sales email where the bug dominates."
+            "The inbox contains 5 intentional hard cases designed to fool keyword classifiers: "
+            "two phishing emails (fake Stripe, fake DocuSign, fake payroll portal) with no classic spam vocabulary, "
+            "a CEO celebration email that contains spam trigger words but is internal, "
+            "a sales lead disguised as a bug report, and a GitHub security alert with a non-obvious owner."
         ),
         "actions": ["open_email", "label_email", "set_priority", "assign_owner", "archive_email"],
-        "scoring": "Per email: label (1/3) + priority (1/3) + owner (1/3). Spam archived +0.10; missed -0.10. Final = mean across 13 emails.",
-        "heuristic_score": 0.9231,
-        "random_score": 0.2154,
-        "ceiling_note": "email_011 (fake Stripe domain) is the intentional hard case - only a domain-aware agent closes this gap.",
+        "scoring": "Per email: label (1/3) + priority (1/3) + owner (1/3). Spam archived +0.10; missed -0.10. Final = mean across 18 emails.",
+        "heuristic_score": 0.7222,
+        "random_score": 0.1685,
+        "ceiling_note": "5 hard cases require sender-domain reasoning and intent understanding — not solvable by keyword matching alone.",
     },
     "meeting_scheduling": {
         "display": "Meeting Scheduling",
@@ -482,26 +483,27 @@ def build_app():
         gr.HTML("""
         <div class="stat-bar">
           <div class="stat-item">
-            <div class="stat-value">0.9808</div>
+            <div class="stat-value">0.9305</div>
             <div class="stat-label">Mean Score</div>
           </div>
           <div class="stat-item">
-            <div class="stat-value">4</div>
-            <div class="stat-label">Tasks</div>
+            <div class="stat-value">18</div>
+            <div class="stat-label">Emails</div>
           </div>
           <div class="stat-item">
             <div class="stat-value">3/4</div>
             <div class="stat-label">Perfect</div>
           </div>
           <div class="stat-item">
-            <div class="stat-value">0→1</div>
-            <div class="stat-label">Score Range</div>
+            <div class="stat-value">+0.28</div>
+            <div class="stat-label">LLM Gap</div>
           </div>
         </div>""")
         gr.Markdown(
             "<small style='color:#475569;display:block;text-align:center;margin-top:6px'>"
-            "Heuristic = hand-tuned keyword classifier &nbsp;·&nbsp; "
-            "LLM target: close the 0.0769 `email_011` gap to reach **1.0000**"
+            "Heuristic = keyword classifier &nbsp;·&nbsp; "
+            "5 hard cases require domain reasoning &nbsp;·&nbsp; "
+            "LLM target: **1.0000** across all tasks"
             "</small>",
         )
 

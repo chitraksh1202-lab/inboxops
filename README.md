@@ -28,7 +28,7 @@ InboxOps fills that gap. Every task reflects something that actually lands in a 
 
 | # | Task | Key | Difficulty | What the agent must do |
 |---|------|-----|-----------|------------------------|
-| 1 | **Email Triage** | `email_triage` | Easy | Classify 13 emails by label, priority, and owner; detect and archive phishing |
+| 1 | **Email Triage** | `email_triage` | Easy | Classify 18 emails by label, priority, and owner; detect and archive phishing |
 | 2 | **Meeting Scheduling** | `meeting_scheduling` | Medium | Find and book the best 60-min slot across 3 busy executive calendars |
 | 3 | **Scheduling - No Solution** | `scheduling_impossible` | Medium | Recognise that no valid slot exists and report it rather than hallucinating one |
 | 4 | **Support Escalation** | `support_escalation` | Hard | Investigate a VIP enterprise ticket with a duplicate charge + account lockout, route correctly, and escalate within the SLA window |
@@ -51,7 +51,7 @@ The agent takes **plain-dict actions** (`{"action": "label_email", "email_id": "
 
 ### Email Triage
 
-Each of the 13 emails is scored independently:
+Each of the 18 emails is scored independently:
 
 | Field | Weight |
 |-------|--------|
@@ -61,7 +61,18 @@ Each of the 13 emails is scored independently:
 
 Spam emails carry an extra modifier: **+0.10** if archived, **-0.10** if left in inbox. Final score = mean across all emails.
 
-**Ceiling note:** `email_011` is an intentional hard case -- a phishing email impersonating Stripe at `stripe-payment-security.net` whose body mentions "payment", "billing", "$599" (strong billing signals) but only one spam signal. A keyword classifier will misclassify it. An agent that checks the sender domain closes the gap.
+**Hard cases (5 intentional):** The inbox contains emails specifically designed to expose the gap between keyword matching and genuine reasoning:
+
+| Email | Trap | Why an LLM wins |
+|-------|------|-----------------|
+| `email_011` | Stripe phishing — body says "payment", "billing", "$599" | Checks `stripe-payment-security.net` ≠ `stripe.com` |
+| `email_014` | DocuSign phishing — no classic spam vocabulary, uses legal/document language | Checks `docusign-esignature.net` ≠ `docusign.com` |
+| `email_015` | CEO email with subject "WON... free team dinner" — spam trigger words | Sender is `@company.internal`; context is a celebration |
+| `email_016` | Rate-limit complaint — support keywords dominate | Primary ask is enterprise pricing → routes to sales |
+| `email_017` | Payroll phishing — "payment" keyword scores as billing | Fake domain `direct-deposit-update.com`; credential harvesting pattern |
+| `email_018` | GitHub org sign-in alert — legitimate security event | Routes to security team, not HR; high priority not medium |
+
+A keyword classifier scores **0.7222** on email triage. An LLM that reasons about sender domains, intent, and context should reach **1.0000**.
 
 ### Meeting Scheduling
 
@@ -112,24 +123,25 @@ Measured on 2026-04-08.
 
 ### Random Baseline (seed=42 -- lower bound)
 
-| Task | Difficulty | Score | Reward | Actions | Pass |
-|------|-----------|------:|-------:|--------:|------|
-| Email Triage | easy | 0.2154 | -- | 43 | NO |
-| Meeting Scheduling | medium | 0.0000 | -- | 1 | NO |
-| Scheduling - No Solution | medium | 0.1000 | -- | 1 | NO |
-| Support Escalation | hard | 0.3500 | -- | 5 | NO |
+| Task | Difficulty | Score | Actions | Pass |
+|------|-----------|------:|--------:|------|
+| Email Triage | easy | 0.1685 | 58 | NO |
+| Meeting Scheduling | medium | 0.9500 | 1 | YES |
+| Scheduling - No Solution | medium | 0.1000 | 1 | NO |
+| Support Escalation | hard | 0.3500 | 5 | NO |
+| **Mean** | | **0.3921** | | |
 
 ### Heuristic Baseline (keyword classifier)
 
-| Task | Difficulty | Score | Reward | Actions | Pass |
-|------|-----------|------:|-------:|--------:|------|
-| Email Triage | easy | **0.9231** | 2.62 | 54 | YES |
-| Meeting Scheduling | medium | **1.0000** | 0.80 | 6 | YES |
-| Scheduling - No Solution | medium | **1.0000** | 0.55 | 5 | YES |
-| Support Escalation | hard | **1.0000** | 1.03 | 13 | YES |
-| **Mean** | | **0.9808** | | | |
+| Task | Difficulty | Score | Actions | Pass |
+|------|-----------|------:|--------:|------|
+| Email Triage | easy | **0.7222** | 75 | YES |
+| Meeting Scheduling | medium | **1.0000** | 6 | YES |
+| Scheduling - No Solution | medium | **1.0000** | 5 | YES |
+| Support Escalation | hard | **1.0000** | 13 | YES |
+| **Mean** | | **0.9305** | | |
 
-**Heuristic ceiling:** The heuristic is hand-tuned -- it knows the action space and applies domain rules, but still misses `email_011` (the fake-Stripe phishing email). An LLM agent with sender-domain reasoning should reach **1.0000** on email triage and match or exceed heuristic performance on all other tasks.
+**Heuristic ceiling:** The keyword classifier scores **0.7222** on email triage — it correctly handles routine emails but fails on all 5 hard cases: three phishing emails with no classic spam vocabulary (fake Stripe, DocuSign, payroll portal), a legitimate CEO email that contains spam trigger words, and a sales inquiry phrased as a support complaint. The LLM target is **1.0000** across all tasks, requiring sender-domain reasoning, intent understanding, and contextual routing.
 
 ---
 
