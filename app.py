@@ -126,63 +126,144 @@ print(env.summary())  # {task, score, total_reward, steps, completed, passed}
 '''
 
 CSS = """
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+* { box-sizing: border-box; }
+
 .gradio-container {
-    background: #0f1117 !important;
-    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif !important;
+    background: #080b12 !important;
+    font-family: 'Inter', system-ui, sans-serif !important;
+    max-width: 900px !important;
+    margin: 0 auto !important;
 }
+
+/* canvas background */
+#dot-canvas {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: 0; pointer-events: none; opacity: 0.35;
+}
+
+.gradio-container > * { position: relative; z-index: 1; }
+
+/* ── Hero ── */
 .hero-wrap {
-    background: linear-gradient(135deg, #1a1f2e 0%, #0f1117 60%, #1a1228 100%);
-    border: 1px solid #2a2d3a;
-    border-radius: 16px;
-    padding: 48px 40px 36px;
-    margin-bottom: 8px;
-    text-align: center;
+    position: relative; overflow: hidden;
+    background: linear-gradient(160deg, #0d1321 0%, #080b12 50%, #110d1f 100%);
+    border: 1px solid #1e2433; border-radius: 20px;
+    padding: 60px 40px 48px; margin-bottom: 4px; text-align: center;
+}
+.hero-wrap::before {
+    content: ''; position: absolute;
+    top: -80px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 300px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(129,140,248,.13) 0%, transparent 70%);
+    pointer-events: none;
+}
+.hero-badge {
+    display: inline-block; margin-bottom: 20px;
+    background: rgba(129,140,248,.1); border: 1px solid rgba(129,140,248,.25);
+    border-radius: 999px; padding: 4px 14px;
+    font-size: 0.72rem; font-weight: 600; color: #818cf8;
+    letter-spacing: 0.1em; text-transform: uppercase;
 }
 .hero-title {
-    font-size: 2.6rem;
-    font-weight: 800;
-    background: linear-gradient(90deg, #818cf8, #c084fc, #f472b6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 0 0 12px;
-    letter-spacing: -0.5px;
+    font-size: 3.4rem; font-weight: 800; line-height: 1.1;
+    background: linear-gradient(135deg, #e2e8f0 0%, #818cf8 40%, #c084fc 70%, #f472b6 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin: 0 0 16px; letter-spacing: -1.5px;
 }
-.hero-sub { color: #94a3b8; font-size: 1.05rem; margin: 0 0 28px; line-height: 1.6; }
-.hero-pills { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.hero-sub {
+    color: #64748b; font-size: 1rem; line-height: 1.7;
+    margin: 0 auto 32px; max-width: 520px;
+}
+.hero-pills { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 .pill {
-    background: #1e2333; border: 1px solid #2e3347; border-radius: 999px;
-    padding: 5px 14px; font-size: 0.78rem; color: #94a3b8; font-weight: 500;
+    background: rgba(255,255,255,.03); border: 1px solid #1e2433;
+    border-radius: 999px; padding: 5px 14px;
+    font-size: 0.75rem; color: #475569; font-weight: 500;
+    transition: border-color .2s, color .2s;
 }
+.pill:hover { border-color: #334155; color: #94a3b8; }
+
+/* ── Section heading ── */
 .section-heading {
-    font-size: 1.1rem; font-weight: 700; color: #e2e8f0;
-    letter-spacing: 0.04em; text-transform: uppercase;
-    margin: 32px 0 12px; border-left: 3px solid #818cf8; padding-left: 12px;
+    font-size: 0.7rem; font-weight: 700; color: #334155;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    margin: 36px 0 14px; display: flex; align-items: center; gap: 10px;
 }
-.score-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 8px; }
+.section-heading::after {
+    content: ''; flex: 1; height: 1px; background: #1a1f2e;
+}
+
+/* ── Score grid ── */
+.score-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 10px; margin-bottom: 10px;
+}
 .score-card {
-    background: #1a1f2e; border: 1px solid #2a2d3a; border-radius: 12px;
-    padding: 18px 16px; text-align: center; transition: border-color 0.2s;
+    background: #0d1018; border: 1px solid #1a1f2e;
+    border-radius: 14px; padding: 20px 14px; text-align: center;
+    transition: border-color .25s, transform .25s, box-shadow .25s;
+    cursor: default;
 }
-.score-card:hover { border-color: #818cf8; }
-.score-card .task-icon { font-size: 1.6rem; margin-bottom: 6px; }
-.score-card .task-name { font-size: 0.75rem; color: #64748b; font-weight: 600;
-                          text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.score-card:hover {
+    border-color: #2d3555;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(129,140,248,.08);
+}
+.score-card .task-icon { font-size: 1.5rem; margin-bottom: 8px; }
+.score-card .task-name {
+    font-size: 0.65rem; color: #334155; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;
+}
 .score-card .diff-badge {
     display: inline-block; border-radius: 999px; padding: 2px 10px;
-    font-size: 0.68rem; font-weight: 700; margin-bottom: 10px; letter-spacing: 0.03em;
+    font-size: 0.64rem; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.04em;
 }
-.score-card .heur-score { font-size: 1.7rem; font-weight: 800; color: #e2e8f0; line-height: 1; }
-.score-card .score-label { font-size: 0.68rem; color: #475569; margin-top: 2px; }
-.score-card .rand-score { font-size: 0.78rem; color: #475569; margin-top: 6px; }
-.task-card { background: #1a1f2e !important; border: 1px solid #2a2d3a !important; border-radius: 12px !important; margin-bottom: 10px !important; }
-.action-chips { display: flex; flex-wrap: wrap; gap: 7px; margin: 10px 0 4px; }
+.score-card .heur-score {
+    font-size: 1.9rem; font-weight: 800; color: #e2e8f0;
+    font-family: 'JetBrains Mono', monospace; line-height: 1;
+}
+.score-card .score-label { font-size: 0.62rem; color: #334155; margin-top: 3px; }
+.score-card .rand-score { font-size: 0.7rem; color: #1e2d3d; margin-top: 8px; }
+
+/* ── Task accordions ── */
+.task-card {
+    background: #0d1018 !important; border: 1px solid #1a1f2e !important;
+    border-radius: 14px !important; margin-bottom: 8px !important;
+    transition: border-color .2s !important;
+}
+.task-card:hover { border-color: #2d3555 !important; }
+
+/* ── Action chips ── */
+.action-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 6px; }
 .chip {
-    background: #0f1117; border: 1px solid #2e3347; border-radius: 6px;
-    padding: 3px 10px; font-size: 0.74rem; color: #818cf8;
-    font-family: 'JetBrains Mono', 'Fira Code', monospace; font-weight: 500;
+    background: rgba(129,140,248,.06); border: 1px solid rgba(129,140,248,.15);
+    border-radius: 6px; padding: 3px 10px;
+    font-size: 0.72rem; color: #818cf8;
+    font-family: 'JetBrains Mono', monospace; font-weight: 500;
+    transition: background .15s;
 }
-.explorer-wrap { background: #1a1f2e; border: 1px solid #2a2d3a; border-radius: 12px; padding: 24px; margin-top: 4px; }
+.chip:hover { background: rgba(129,140,248,.12); }
+
+/* ── Explorer ── */
+.explorer-wrap {
+    background: #0d1018; border: 1px solid #1a1f2e;
+    border-radius: 14px; padding: 24px; margin-top: 4px;
+}
+
+/* ── Stat bar ── */
+.stat-bar {
+    display: flex; gap: 24px; justify-content: center;
+    margin: 6px 0 2px; flex-wrap: wrap;
+}
+.stat-item { text-align: center; }
+.stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.4rem; font-weight: 700; color: #818cf8;
+}
+.stat-label { font-size: 0.65rem; color: #334155; text-transform: uppercase; letter-spacing: 0.08em; }
+
 footer { display: none !important; }
 """
 
@@ -215,11 +296,39 @@ def _action_chips_html(actions):
 
 def _hero_html() -> str:
     return """
+    <canvas id="dot-canvas"></canvas>
+    <script>
+    (function(){
+      var c=document.getElementById('dot-canvas');
+      if(!c)return;
+      var ctx=c.getContext('2d');
+      var cols,rows,dots,t=0;
+      function resize(){
+        c.width=window.innerWidth;c.height=window.innerHeight;
+        var sp=22;cols=Math.ceil(c.width/sp)+1;rows=Math.ceil(c.height/sp)+1;
+        dots=[];
+        for(var i=0;i<cols;i++)for(var j=0;j<rows;j++)dots.push({x:i*sp,y:j*sp,r:1.2});
+      }
+      function draw(){
+        ctx.clearRect(0,0,c.width,c.height);
+        for(var k=0;k<dots.length;k++){
+          var d=dots[k];
+          var wave=Math.sin(d.x*0.015+d.y*0.012+t)*0.5+0.5;
+          ctx.globalAlpha=0.08+wave*0.22;
+          ctx.fillStyle='#818cf8';
+          ctx.beginPath();ctx.arc(d.x,d.y,d.r+wave*0.6,0,6.283);ctx.fill();
+        }
+        t+=0.012;requestAnimationFrame(draw);
+      }
+      window.addEventListener('resize',resize);resize();draw();
+    })();
+    </script>
     <div class="hero-wrap">
+      <div class="hero-badge">Workplace Agent Benchmark</div>
       <div class="hero-title">InboxOps</div>
       <div class="hero-sub">
-        A deterministic workplace agent benchmark - 4 tasks, clean 0-1 scoring, pure Python.<br>
-        <em>Can your agent handle a Monday morning inbox?</em>
+        A deterministic benchmark for evaluating AI agents on realistic office inbox tasks.<br>
+        Four tasks · Clean 0–1 scoring · Pure Python · LLM-ready
       </div>
       <div class="hero-pills">
         <span class="pill">📦 Zero dependencies</span>
@@ -256,12 +365,29 @@ def build_app():
 
         gr.HTML('<div class="section-heading">Baseline Scores</div>')
         gr.HTML(_score_cards_html())
+        gr.HTML("""
+        <div class="stat-bar">
+          <div class="stat-item">
+            <div class="stat-value">0.9808</div>
+            <div class="stat-label">Mean Score</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">4</div>
+            <div class="stat-label">Tasks</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">3/4</div>
+            <div class="stat-label">Perfect</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">0→1</div>
+            <div class="stat-label">Score Range</div>
+          </div>
+        </div>""")
         gr.Markdown(
-            "<small style='color:#475569'>"
+            "<small style='color:#475569;display:block;text-align:center;margin-top:6px'>"
             "Heuristic = hand-tuned keyword classifier &nbsp;·&nbsp; "
-            "Random = seed 42 &nbsp;·&nbsp; "
-            "Gap = **+0.8144** &nbsp;·&nbsp; "
-            "LLM target: close the 0.0769 email_011 gap to reach **1.0000**"
+            "LLM target: close the 0.0769 `email_011` gap to reach **1.0000**"
             "</small>",
         )
 
