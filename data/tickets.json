@@ -10,4 +10,16 @@
     "assigned_to": null,
     "body": "Hi support,\n\nI've been charged twice for my subscription this month. I can see two identical charges of $2,000 on April 1st on my credit card. On top of that, my account appears to be locked — I cannot log in and my whole team is affected.\n\nThis is extremely urgent. Our contract renews in 3 days and we cannot afford any downtime. Please help immediately.\n\nMarcus Wei\nGlobal Tech Solutions"
   }
+,
+  {
+    "id": "TKT-002",
+    "customer_id": "CUST-002",
+    "subject": "GDPR data export 8 days overdue + overbilling for cancelled seats",
+    "channel": "email",
+    "created_at": "2026-04-10T14:22:00Z",
+    "status": "open",
+    "priority": null,
+    "assigned_to": null,
+    "body": "Hi,\n\nTwo separate issues I need resolved urgently:\n\n1. DATA EXPORT: I submitted a GDPR Article 20 (right to data portability) request 8 days ago and have not received any acknowledgement. Our legal team is now involved and we are tracking this for regulatory compliance purposes.\n\n2. OVERBILLING: We cancelled 5 seats on January 1st and were confirmed via email. However, we have been charged for those 5 seats in February, March, and April — a total of £270 in excess charges.\n\nIf these are not resolved by end of this week we will be cancelling our subscription and filing a formal complaint with the ICO.\n\nNina Osei\nHead of Compliance, CloudBase Inc"
+  }
 ]

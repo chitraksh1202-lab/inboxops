@@ -60,10 +60,13 @@ Rules:
   {{"action": "book_meeting", "date": "2026-04-10", "start": "09:00", "end": "10:00"}}
   {{"action": "report_no_solution", "reason": "No slot exists."}}
   {{"action": "open_ticket", "ticket_id": "TKT-001"}}
+  {{"action": "open_ticket", "ticket_id": "TKT-002"}}
   {{"action": "view_customer", "customer_id": "CUST-001"}}
+  {{"action": "view_customer", "customer_id": "CUST-002"}}
   {{"action": "inspect_billing", "customer_id": "CUST-001"}}
   {{"action": "check_auth_status", "customer_id": "CUST-001"}}
   {{"action": "search_policy", "policy_id": "refund_policy"}}
+  {{"action": "search_policy", "policy_id": "data_privacy_policy"}}
   {{"action": "assign_ticket", "team": "billing"}}
   {{"action": "add_internal_note", "note": "..."}}
   {{"action": "draft_reply", "content": "..."}}
@@ -336,7 +339,12 @@ def _scheduling_action(task_key: str, state: dict, info: dict):
 # ── Support escalation ────────────────────────────────────────────────────────
 
 def _support_action(state: dict):
-    if state.get("ticket") is None:
+    tickets_opened = set(state.get("tickets_opened", []))
+    policies_seen  = set(state.get("policies_seen", {}).keys())
+    assignments    = state.get("assignments", [])
+
+    # ── Phase 1: TKT-001 (duplicate charge + account lockout) ────────────────
+    if "TKT-001" not in tickets_opened:
         return {"action": "open_ticket", "ticket_id": "TKT-001"}
 
     if state.get("customer_record") is None:
@@ -348,12 +356,10 @@ def _support_action(state: dict):
     if state.get("auth_record") is None:
         return {"action": "check_auth_status", "customer_id": "CUST-001"}
 
-    policies_seen = set(state.get("policies_seen", {}).keys())
     for policy_id in ["refund_policy", "billing_policy", "escalation_policy", "security_policy"]:
         if policy_id not in policies_seen:
             return {"action": "search_policy", "policy_id": policy_id}
 
-    assignments = state.get("assignments", [])
     if "billing" not in assignments:
         return {"action": "assign_ticket", "team": "billing"}
     if "security" not in assignments:
@@ -363,14 +369,12 @@ def _support_action(state: dict):
         return {
             "action": "add_internal_note",
             "note": (
-                "FINDINGS: Duplicate charge confirmed — ch_001 and ch_002 both charged $2,000 "
-                "on 2026-04-01 (billing system error). Per refund_policy, duplicate charges are "
-                "eligible for immediate refund. "
-                "Account locked after 5 failed login attempts at 08:04Z on 2026-04-08. "
+                "TKT-001 FINDINGS: Duplicate charge confirmed — ch_001 and ch_002 both charged $2,000 "
+                "on 2026-04-01 (billing system error). Per refund_policy, duplicate charges eligible for "
+                "immediate refund. Account locked after 5 failed login attempts 2026-04-08T08:03Z. "
                 "Per security_policy, unlock requires security team approval + identity verification. "
-                "Customer CUST-001 (Marcus Wei, Global Tech Solutions) is VIP enterprise tier, "
-                "$24k/year, renewal in 3 days (2026-04-11). "
-                "Per escalation_policy, must escalate to account manager Sarah Okafor within 2 hours."
+                "CUST-001 (Marcus Wei, Global Tech Solutions) is VIP enterprise, $24k/year, renewal "
+                "2026-04-11 (3 days). Per escalation_policy must escalate to Sarah Okafor within 2 hours."
             ),
         }
 
@@ -378,17 +382,12 @@ def _support_action(state: dict):
         return {
             "action": "draft_reply",
             "content": (
-                "Dear Marcus,\n\n"
-                "Thank you for reaching out. We have received your message and are treating this as urgent.\n\n"
-                "We have confirmed the duplicate charge on your account ($2,000 x2 on April 1st) and our "
-                "billing team is processing the refund as a priority — you will receive confirmation within "
-                "1 business day.\n\n"
-                "Regarding your account access: our security team will contact you shortly to verify your "
-                "identity and restore access. For security reasons, account unlocks require this verification "
-                "step before we can proceed.\n\n"
+                "Dear Marcus,\n\nThank you for reaching out. We are treating this as urgent.\n\n"
+                "We have confirmed the duplicate charge ($2,000 x2 on April 1st). Our billing team "
+                "is processing the refund as a priority — you will receive confirmation within 1 business day.\n\n"
+                "Our security team will contact you shortly to verify your identity and restore account access.\n\n"
                 "Your account manager, Sarah Okafor, has been notified and will be in direct contact with you.\n\n"
-                "We sincerely apologise for the disruption, especially given your upcoming renewal.\n\n"
-                "Best regards,\nSupport Team"
+                "We sincerely apologise for the disruption.\n\nBest regards,\nSupport Team"
             ),
         }
 
@@ -396,10 +395,33 @@ def _support_action(state: dict):
         return {
             "action": "escalate",
             "reason": (
-                "VIP enterprise customer CUST-001 (Marcus Wei, Global Tech Solutions, $24k/year) "
-                "has two critical unresolved issues: (1) duplicate charge $2,000 x2 on 2026-04-01, "
-                "(2) account locked after failed login attempts. Contract renewal in 3 days (2026-04-11). "
+                "VIP enterprise customer CUST-001 (Marcus Wei, Global Tech Solutions, $24k/year) — "
+                "duplicate charge $2,000 x2 + account locked. Renewal in 3 days (2026-04-11). "
                 "Escalation required per escalation_policy. Account manager: Sarah Okafor."
+            ),
+        }
+
+    # ── Phase 2: TKT-002 (GDPR export + overbilling + churn risk) ────────────
+    if "TKT-002" not in tickets_opened:
+        return {"action": "open_ticket", "ticket_id": "TKT-002"}
+
+    if not state.get("customer_002_viewed"):
+        return {"action": "view_customer", "customer_id": "CUST-002"}
+
+    if "data_privacy_policy" not in policies_seen:
+        return {"action": "search_policy", "policy_id": "data_privacy_policy"}
+
+    if not state.get("churn_risk_flagged"):
+        return {
+            "action": "add_internal_note",
+            "note": (
+                "TKT-002 FINDINGS: GDPR Article 20 data export request submitted 2026-04-02 — "
+                "8 days with no acknowledgement. SLA breach per data_privacy_policy. Must escalate "
+                "to DPO immediately and respond same business day. "
+                "Overbilling: 5 cancelled seats (from 2026-01-01) still charged Feb/Mar/Apr — "
+                "$60 excess/month x3 = $180 total overbilled. Refund required. "
+                "CHURN RISK: customer explicitly threatened cancellation and ICO complaint. "
+                "High priority — at risk of losing $3,600/year account."
             ),
         }
 

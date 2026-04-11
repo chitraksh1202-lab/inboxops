@@ -19,4 +19,10 @@
     "title": "Account Lockout & Access Policy",
     "content": "Accounts are locked automatically after 5 consecutive failed login attempts. Account unlocking requires: (1) identity verification via the customer's registered email or phone number, and (2) explicit approval from the security team. Support agents must NOT unlock accounts without security team sign-off. Do not promise immediate account restoration without security team involvement."
   }
+,
+  {
+    "id": "data_privacy_policy",
+    "title": "Data Privacy & GDPR Compliance Policy",
+    "content": "Under GDPR Article 20 (Right to Data Portability), customers may request an export of all personal data held by the company. The company must: (1) acknowledge the request within 72 hours, (2) fulfil it within 30 days. Requests that have not received an acknowledgement within 5 business days must be escalated to the Data Protection Officer (DPO) immediately. Failure to comply may result in regulatory fines up to 4% of annual global turnover. All data export requests must be logged and tracked in the support system. For customers who have submitted a request with no acknowledgement beyond 5 days, the response must be prioritised and sent the same business day."
+  }
 ]

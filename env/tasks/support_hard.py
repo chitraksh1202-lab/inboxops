@@ -34,10 +34,10 @@ DATA_DIR = Path(__file__).parent.parent.parent / "data"
 
 MAX_STEPS = 40
 
-VALID_TEAMS  = {"billing", "support", "security", "exec", "sales", "hr"}
-KNOWN_TICKET = "TKT-001"
-KNOWN_CUSTOMER = "CUST-001"
-KNOWN_POLICIES = {"refund_policy", "billing_policy", "escalation_policy", "security_policy"}
+VALID_TEAMS     = {"billing", "support", "security", "exec", "sales", "hr"}
+KNOWN_TICKETS   = {"TKT-001", "TKT-002"}
+KNOWN_CUSTOMERS = {"CUST-001", "CUST-002"}
+KNOWN_POLICIES  = {"refund_policy", "billing_policy", "escalation_policy", "security_policy", "data_privacy_policy"}
 
 
 class SupportEscalationTask:
@@ -52,17 +52,21 @@ class SupportEscalationTask:
     # ── Lifecycle ─────────────────────────────────────────────────────────────
 
     def reset(self) -> dict:
-        # What the agent has discovered so far
-        self.ticket_opened      : bool  = False
+        # TKT-001 tracking
+        self.tickets_opened     : set   = set()   # replaces ticket_opened bool
         self.current_ticket     : dict  = None
-        self.customer_viewed    : bool  = False
+        self.customer_viewed    : bool  = False    # CUST-001 viewed
         self.customer_record    : dict  = None
         self.billing_inspected  : bool  = False
-        self.billing_record     : list  = None  # billing_history list
+        self.billing_record     : list  = None
         self.auth_checked       : bool  = False
-        self.auth_record        : list  = None  # auth_log list
+        self.auth_record        : list  = None
+        # TKT-002 tracking
+        self.customer_002_viewed : bool = False
+        self.churn_risk_flagged  : bool = False
+        # Shared
         self.policies_seen      : set   = set()
-        self.assignments        : list  = []    # teams assigned
+        self.assignments        : list  = []
         self.internal_notes     : list  = []
         self.draft_reply        : str   = None
         self.escalated          : bool  = False
@@ -75,8 +79,10 @@ class SupportEscalationTask:
     def state(self) -> dict:
         return {
             "task":                 self.name,
+            "tickets_opened":       sorted(self.tickets_opened),
             "ticket":               self.current_ticket,
             "customer_record":      self._safe_customer_view(),
+            "customer_002_viewed":  self.customer_002_viewed,
             "billing_record":       self.billing_record,
             "auth_record":          self.auth_record,
             "policies_seen":        {pid: self._policies[pid] for pid in self.policies_seen},
@@ -85,10 +91,10 @@ class SupportEscalationTask:
             "draft_reply":          self.draft_reply,
             "escalated":            self.escalated,
             "escalation_reason":    self.escalation_reason,
+            "churn_risk_flagged":   self.churn_risk_flagged,
             "action_log":           self.action_log[-15:],
             "step_count":           self.step_count,
             "done":                 self.done,
-            # Hint so the agent knows what tickets exist
             "available_tickets":    list(self._tickets.keys()),
         }
 
@@ -160,23 +166,28 @@ class SupportEscalationTask:
         tid = action.get("ticket_id")
         if tid not in self._tickets:
             return R["unknown_ticket"], {"error": f"Unknown ticket {tid!r}. Available: {list(self._tickets.keys())}"}
-        if self.ticket_opened:
-            return R["open_ticket_repeat"], {"note": "ticket already opened"}
-        self.ticket_opened  = True
+        if tid in self.tickets_opened:
+            return R["open_ticket_repeat"], {"note": f"ticket {tid!r} already opened"}
+        self.tickets_opened.add(tid)
         self.current_ticket = self._tickets[tid]
         return R["open_ticket"], {"result": "ticket_loaded", "ticket": self.current_ticket}
 
     def _view_customer(self, action: dict) -> tuple[float, dict]:
         cid = action.get("customer_id")
         if cid not in self._customers:
-            return R["unknown_customer"], {"error": f"Unknown customer {cid!r}"}
-        if self.customer_viewed:
-            return R["view_customer_repeat"], {"note": "customer already viewed"}
-        self.customer_viewed = True
-        self.customer_record = self._customers[cid]
-        # Strip raw billing/auth — agent must call dedicated actions for those
-        summary = {k: v for k, v in self.customer_record.items()
-                   if k not in ("billing_history", "auth_log")}
+            return R["unknown_customer"], {"error": f"Unknown customer {cid!r}. Available: {list(self._customers.keys())}"}
+        if cid == "CUST-001":
+            if self.customer_viewed:
+                return R["view_customer_repeat"], {"note": "customer already viewed"}
+            self.customer_viewed = True
+            self.customer_record = self._customers[cid]
+        elif cid == "CUST-002":
+            if self.customer_002_viewed:
+                return R["view_customer_repeat"], {"note": "customer already viewed"}
+            self.customer_002_viewed = True
+            self.customer_record = self._customers[cid]
+        summary = {k: v for k, v in self._customers[cid].items()
+                   if k not in ("billing_history", "auth_log", "data_requests")}
         return R["view_customer"], {"result": "customer_loaded", "customer_summary": summary}
 
     def _inspect_billing(self, action: dict) -> tuple[float, dict]:
@@ -245,6 +256,10 @@ class SupportEscalationTask:
         if not note:
             return 0.0, {"error": "note content is empty"}
         self.internal_notes.append(note)
+        # Detect churn-risk flagging for TKT-002 grading
+        note_lower = note.lower()
+        if any(w in note_lower for w in ("churn", "cancellation risk", "cancel", "at risk", "ico", "gdpr")):
+            self.churn_risk_flagged = True
         return R["add_internal_note"], {"result": "note_added", "note_preview": note[:100]}
 
     def _draft_reply(self, action: dict) -> tuple[float, dict]:
@@ -262,7 +277,6 @@ class SupportEscalationTask:
             return R["escalate_repeat"], {"note": "already escalated"}
         self.escalated         = True
         self.escalation_reason = reason
-        self.done              = True
         return R["escalate"], {
             "result": "escalated",
             "reason": reason,
@@ -275,19 +289,27 @@ class SupportEscalationTask:
         """
         Returns a dict of checklist items and whether each was satisfied.
         Called by graders.grade_support() to compute the final score.
+
+        TKT-001 items sum to 0.70; TKT-002 items sum to 0.30. Total = 1.00.
         """
         return {
-            "ticket_opened":              self.ticket_opened,
-            "customer_viewed":            self.customer_viewed,
-            "billing_inspected":          self.billing_inspected,
-            "auth_checked":               self.auth_checked,
-            "refund_policy_consulted":    "refund_policy"    in self.policies_seen,
-            "billing_policy_consulted":   "billing_policy"   in self.policies_seen,
-            "escalation_policy_consulted":"escalation_policy" in self.policies_seen,
-            "security_policy_consulted":  "security_policy"  in self.policies_seen,
-            "billing_assigned":           "billing"  in self.assignments,
-            "security_assigned":          "security" in self.assignments,
-            "internal_note_added":        len(self.internal_notes) > 0,
-            "reply_drafted":              self.draft_reply is not None,
-            "escalated":                  self.escalated,
+            # ── TKT-001: duplicate charge + account lockout (0.70) ──
+            "ticket_001_opened":               "TKT-001" in self.tickets_opened,
+            "customer_001_viewed":             self.customer_viewed,
+            "billing_inspected":               self.billing_inspected,
+            "auth_checked":                    self.auth_checked,
+            "refund_policy_consulted":         "refund_policy"      in self.policies_seen,
+            "billing_policy_consulted":        "billing_policy"     in self.policies_seen,
+            "escalation_policy_consulted":     "escalation_policy"  in self.policies_seen,
+            "security_policy_consulted":       "security_policy"    in self.policies_seen,
+            "billing_assigned":                "billing"  in self.assignments,
+            "security_assigned":               "security" in self.assignments,
+            "internal_note_added":             len(self.internal_notes) > 0,
+            "reply_drafted":                   self.draft_reply is not None,
+            "escalated":                       self.escalated,
+            # ── TKT-002: GDPR export + overbilling + churn risk (0.30) ──
+            "ticket_002_opened":               "TKT-002" in self.tickets_opened,
+            "customer_002_viewed":             self.customer_002_viewed,
+            "data_privacy_policy_consulted":   "data_privacy_policy" in self.policies_seen,
+            "churn_risk_flagged":              self.churn_risk_flagged,
         }

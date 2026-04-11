@@ -94,19 +94,21 @@ TASK_INFO = {
         "difficulty": "Hard",
         "diff_color": "#ef4444",
         "description": (
-            "Ticket TKT-001 from Marcus Wei at Global Tech Solutions (VIP enterprise, $24k/year, "
-            "renewal in 3 days) reports two issues: a duplicate charge ($2,000 x 2) and an "
-            "account lockout after 5 failed login attempts.\n\n"
-            "The agent must investigate billing history, check the auth log, consult all four "
-            "relevant policies, route to the correct teams, document findings in an internal note, "
-            "draft a customer reply, and escalate - all within the SLA window."
+            "Two open tickets land simultaneously.\n\n"
+            "**TKT-001** — Marcus Wei (Global Tech Solutions, VIP enterprise, $24k/year, renewal in 3 days): "
+            "duplicate charge ($2,000 × 2) and account lockout after 5 failed login attempts.\n\n"
+            "**TKT-002** — Nina Osei (CloudBase Inc, high churn risk): GDPR Article 20 data export "
+            "request 8 days overdue with no acknowledgement (SLA breach), plus overbilling for 5 "
+            "cancelled seats across 3 months. Customer has threatened cancellation and an ICO complaint.\n\n"
+            "The agent must investigate both tickets, consult the correct policies (including `data_privacy_policy`), "
+            "route work, document findings, and flag the churn risk — a keyword-based heuristic only handles TKT-001."
         ),
         "actions": ["open_ticket", "view_customer", "inspect_billing", "check_auth_status",
                     "search_policy", "assign_ticket", "add_internal_note", "draft_reply", "escalate"],
-        "scoring": "Checklist-based (13 items, weights sum to 1.0). Escalation alone = 0.10; full systematic investigation required for 1.0.",
-        "heuristic_score": 1.0000,
-        "random_score": 0.3500,
-        "ceiling_note": None,
+        "scoring": "Checklist-based (17 items). TKT-001 items = 0.70; TKT-002 items = 0.30. Heuristic scores 0.70 (misses all TKT-002 items).",
+        "heuristic_score": 0.7000,
+        "random_score": 0.2500,
+        "ceiling_note": "TKT-002 requires recognising a GDPR SLA breach, overbilling, and churn risk — none visible to a hardcoded TKT-001 script.",
     },
 }
 
@@ -483,7 +485,7 @@ def build_app():
         gr.HTML("""
         <div class="stat-bar">
           <div class="stat-item">
-            <div class="stat-value">0.9305</div>
+            <div class="stat-value">0.8556</div>
             <div class="stat-label">Mean Score</div>
           </div>
           <div class="stat-item">
@@ -491,11 +493,11 @@ def build_app():
             <div class="stat-label">Emails</div>
           </div>
           <div class="stat-item">
-            <div class="stat-value">3/4</div>
+            <div class="stat-value">2/4</div>
             <div class="stat-label">Perfect</div>
           </div>
           <div class="stat-item">
-            <div class="stat-value">+0.28</div>
+            <div class="stat-value">+0.14</div>
             <div class="stat-label">LLM Gap</div>
           </div>
         </div>""")

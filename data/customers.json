@@ -46,5 +46,64 @@
     ],
     "open_tickets": ["TKT-001"],
     "notes": "Long-term customer since 2020. High strategic value. Renewal at risk if unresolved."
+  },
+  {
+    "id": "CUST-002",
+    "name": "Nina Osei",
+    "company": "CloudBase Inc",
+    "email": "n.osei@cloudbase.io",
+    "phone": "+44-20-7946-0112",
+    "tier": "pro",
+    "is_vip": false,
+    "account_since": "2023-06-01",
+    "subscription_plan": "Pro Team – 25 seats",
+    "subscription_value_usd": 3600,
+    "renewal_date": "2026-06-01",
+    "churn_risk": "high",
+    "account_manager": null,
+    "billing_history": [
+      {
+        "date": "2026-04-01",
+        "amount": 300.00,
+        "description": "Pro Team – 25 seats (April)",
+        "charge_id": "ch_pro_apr",
+        "status": "settled",
+        "_note": "OVERBILLING: 5 seats cancelled 2026-01-01. Should be 20 seats at $240/month. Excess: $60"
+      },
+      {
+        "date": "2026-03-01",
+        "amount": 300.00,
+        "description": "Pro Team – 25 seats (March)",
+        "charge_id": "ch_pro_mar",
+        "status": "settled",
+        "_note": "OVERBILLING: 5 seats cancelled 2026-01-01. Excess: $60"
+      },
+      {
+        "date": "2026-02-01",
+        "amount": 300.00,
+        "description": "Pro Team – 25 seats (February)",
+        "charge_id": "ch_pro_feb",
+        "status": "settled",
+        "_note": "OVERBILLING: 5 seats cancelled 2026-01-01. Excess: $60"
+      },
+      {
+        "date": "2026-01-01",
+        "amount": 240.00,
+        "description": "Pro Team – 20 seats (January, post-cancellation)",
+        "charge_id": "ch_pro_jan",
+        "status": "settled"
+      }
+    ],
+    "auth_log": [],
+    "data_requests": [
+      {
+        "type": "gdpr_article_20",
+        "submitted_at": "2026-04-02T10:05:00Z",
+        "status": "pending",
+        "_note": "No acknowledgement sent. 8 days elapsed. SLA breach — must escalate to DPO immediately."
+      }
+    ],
+    "open_tickets": ["TKT-002"],
+    "notes": "Customer has explicitly threatened cancellation and ICO complaint. High churn risk. No account manager assigned (Pro tier)."
   }
 ]

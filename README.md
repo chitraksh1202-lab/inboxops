@@ -128,20 +128,26 @@ Measured on 2026-04-08.
 | Email Triage | easy | 0.1685 | 58 | NO |
 | Meeting Scheduling | medium | 0.9500 | 1 | YES |
 | Scheduling - No Solution | medium | 0.1000 | 1 | NO |
-| Support Escalation | hard | 0.3500 | 5 | NO |
-| **Mean** | | **0.3921** | | |
+| Support Escalation | hard | 0.2500 | 5 | NO |
+| **Mean** | | **0.3671** | | |
 
-### Heuristic Baseline (keyword classifier)
+### Heuristic Baseline (keyword classifier + hardcoded scripts)
 
 | Task | Difficulty | Score | Actions | Pass |
 |------|-----------|------:|--------:|------|
 | Email Triage | easy | **0.7222** | 75 | YES |
 | Meeting Scheduling | medium | **1.0000** | 6 | YES |
 | Scheduling - No Solution | medium | **1.0000** | 5 | YES |
-| Support Escalation | hard | **1.0000** | 13 | YES |
-| **Mean** | | **0.9305** | | |
+| Support Escalation | hard | **0.7000** | 13 | YES |
+| **Mean** | | **0.8556** | | |
 
-**Heuristic ceiling:** The keyword classifier scores **0.7222** on email triage — it correctly handles routine emails but fails on all 5 hard cases: three phishing emails with no classic spam vocabulary (fake Stripe, DocuSign, payroll portal), a legitimate CEO email that contains spam trigger words, and a sales inquiry phrased as a support complaint. The LLM target is **1.0000** across all tasks, requiring sender-domain reasoning, intent understanding, and contextual routing.
+**Heuristic gaps:**
+
+- **Email Triage (0.7222):** Fails on all 5 hard cases — three phishing emails with no classic spam vocabulary (fake Stripe, DocuSign, payroll portal), a legitimate CEO email with spam trigger words, and a sales lead framed as a support complaint. Requires sender-domain reasoning and intent understanding.
+
+- **Support Escalation (0.7000):** The hardcoded script only handles TKT-001 (duplicate charge + account lockout). TKT-002 (GDPR data export SLA breach + overbilling + churn threat) requires the agent to recognise a second open ticket, consult `data_privacy_policy`, and flag the cancellation risk — none of which a scripted heuristic does.
+
+**LLM target: 1.0000 across all tasks.**
 
 ---
 

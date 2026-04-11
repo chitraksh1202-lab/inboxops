@@ -169,20 +169,27 @@ def grade_scheduling(task) -> float:
 # ─── Task 3: Support Escalation ───────────────────────────────────────────────
 
 # Checklist weights — must sum to 1.0
+# TKT-001 items = 0.70 total; TKT-002 items = 0.30 total
 _SUPPORT_CHECKLIST_WEIGHTS = {
-    "ticket_opened":               0.05,
-    "customer_viewed":             0.10,
-    "billing_inspected":           0.15,
-    "auth_checked":                0.10,
-    "refund_policy_consulted":     0.05,
-    "billing_policy_consulted":    0.05,
-    "escalation_policy_consulted": 0.05,
-    "security_policy_consulted":   0.05,
-    "billing_assigned":            0.10,
-    "security_assigned":           0.05,
-    "internal_note_added":         0.05,
-    "reply_drafted":               0.10,
-    "escalated":                   0.10,
+    # ── TKT-001: duplicate charge + account lockout ──
+    "ticket_001_opened":               0.04,
+    "customer_001_viewed":             0.07,
+    "billing_inspected":               0.10,
+    "auth_checked":                    0.07,
+    "refund_policy_consulted":         0.04,
+    "billing_policy_consulted":        0.04,
+    "escalation_policy_consulted":     0.04,
+    "security_policy_consulted":       0.04,
+    "billing_assigned":                0.07,
+    "security_assigned":               0.04,
+    "internal_note_added":             0.04,
+    "reply_drafted":                   0.06,
+    "escalated":                       0.05,
+    # ── TKT-002: GDPR export + overbilling + churn risk ──
+    "ticket_002_opened":               0.08,
+    "customer_002_viewed":             0.10,
+    "data_privacy_policy_consulted":   0.08,
+    "churn_risk_flagged":              0.04,
 }
 # Total: 1.00
 
