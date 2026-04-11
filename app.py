@@ -130,11 +130,14 @@ CSS = """
 
 * { box-sizing: border-box; }
 
+html, body { background: #080b12 !important; }
+
 .gradio-container {
     background: #080b12 !important;
     font-family: 'Inter', system-ui, sans-serif !important;
-    max-width: 900px !important;
+    max-width: 1100px !important;
     margin: 0 auto !important;
+    padding: 0 24px !important;
 }
 
 /* canvas background */
@@ -297,32 +300,6 @@ def _action_chips_html(actions):
 def _hero_html() -> str:
     return """
     <canvas id="dot-canvas"></canvas>
-    <script>
-    (function(){
-      var c=document.getElementById('dot-canvas');
-      if(!c)return;
-      var ctx=c.getContext('2d');
-      var cols,rows,dots,t=0;
-      function resize(){
-        c.width=window.innerWidth;c.height=window.innerHeight;
-        var sp=22;cols=Math.ceil(c.width/sp)+1;rows=Math.ceil(c.height/sp)+1;
-        dots=[];
-        for(var i=0;i<cols;i++)for(var j=0;j<rows;j++)dots.push({x:i*sp,y:j*sp,r:1.2});
-      }
-      function draw(){
-        ctx.clearRect(0,0,c.width,c.height);
-        for(var k=0;k<dots.length;k++){
-          var d=dots[k];
-          var wave=Math.sin(d.x*0.015+d.y*0.012+t)*0.5+0.5;
-          ctx.globalAlpha=0.08+wave*0.22;
-          ctx.fillStyle='#818cf8';
-          ctx.beginPath();ctx.arc(d.x,d.y,d.r+wave*0.6,0,6.283);ctx.fill();
-        }
-        t+=0.012;requestAnimationFrame(draw);
-      }
-      window.addEventListener('resize',resize);resize();draw();
-    })();
-    </script>
     <div class="hero-wrap">
       <div class="hero-badge">Workplace Agent Benchmark</div>
       <div class="hero-title">InboxOps</div>
@@ -350,10 +327,43 @@ def _get_initial_state(task_key: str) -> str:
 
 # ─── UI ───────────────────────────────────────────────────────────────────────
 
+_CANVAS_JS = """
+() => {
+  function startCanvas() {
+    var c = document.getElementById('dot-canvas');
+    if (!c) { setTimeout(startCanvas, 200); return; }
+    var ctx = c.getContext('2d');
+    var dots = [], t = 0;
+    function resize() {
+      c.width = window.innerWidth; c.height = window.innerHeight;
+      var sp = 24; dots = [];
+      for (var i = 0; i <= Math.ceil(c.width/sp)+1; i++)
+        for (var j = 0; j <= Math.ceil(c.height/sp)+1; j++)
+          dots.push({x: i*sp, y: j*sp});
+    }
+    function draw() {
+      ctx.clearRect(0, 0, c.width, c.height);
+      for (var k = 0; k < dots.length; k++) {
+        var d = dots[k];
+        var w = Math.sin(d.x*0.015 + d.y*0.012 + t) * 0.5 + 0.5;
+        ctx.globalAlpha = 0.06 + w * 0.2;
+        ctx.fillStyle = '#818cf8';
+        ctx.beginPath(); ctx.arc(d.x, d.y, 1.1 + w*0.7, 0, 6.283); ctx.fill();
+      }
+      t += 0.011; requestAnimationFrame(draw);
+    }
+    window.addEventListener('resize', resize); resize(); draw();
+  }
+  startCanvas();
+}
+"""
+
+
 def build_app():
     with gr.Blocks(
         title="InboxOps - Workplace Agent Benchmark",
         css=CSS,
+        js=_CANVAS_JS,
         theme=gr.themes.Base(
             primary_hue="violet",
             neutral_hue="slate",
